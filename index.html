@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="expires" content="-1">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script src="nyc_c2.geojson"></script>
+<style type="text/css">
+
+.graph-svg-component {
+    background-color: rgb(225,225,225);
+}
+
+/* Legend Font Style */
+body {
+	font: 11px sans-serif;
+}
+        
+/* Legend Position Style */
+.legend {
+	position:absolute;
+	left:375px;
+	top:500px;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript">
+
+d3.csv("q_guide.csv", function(data) {
+	var elems = {};
+	for (var i = 0; i < data.length; i++)
+	{
+	    elems[data[i].index] = data[i].INSPECTION_YEAR_Q;
+	}
+
+
+//Width and height of map
+var width = 500;
+var height = 650;
+init_year = 0
+var headline = "311 Rat Inspection Results in ";
+d3.select("body").insert("h2", ":first-child").text(headline + elems[init_year]);
+
+    d3.select("body").insert("p", ":first-child").append("input")
+        .attr("type", "range")
+        .attr("min", "0")
+        .attr("max", "31")
+        .attr("value", init_year)
+        .attr("id", "year");
+
+
+// D3 Projection
+var projection = d3.geoMercator()
+				   .translate([width/2, height/2])
+				   .center([-73.963606, 40.788000])
+				   .scale([150000]);        
+
+// Define path generator
+var path = d3.geoPath()               
+		  	 .projection(projection); 
+
+		
+// Define linear scale for output
+var color = d3.scaleLinear()
+			  .range(['#b3cde3',"#810f7c","#2ca25f"]);
+
+var legendText = ["No Inspection", "Inspection Failed", "Inspection Passed"];
+
+//Create SVG element and append map to the SVG
+var svg = d3.select("body")
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height)
+			.attr("class", "graph-svg-component");
+
+// Load in rat inspection data
+d3.csv("year_rats.csv", function(data) {
+color.domain([0,1,2]); 
+
+// Load GeoJSON data and merge with rat data
+d3.json("nyc_c2.geojson", function(json) {
+
+// Building new json file with associated rat/year_quater/location info
+for (var i = 0; i < data.length; i++) {
+
+	var datacbg = data[i].cbg;
+	var datact_f = data[i].ct_f;
+	var datayear = data[i].Quarter_Number
+
+	var dataValue = data[i].RESULT;
+
+	for (var j = 0; j < json.features.length; j++)  {
+		var jsoncbg = json.features[j].properties.NAMELSAD;
+		var jsonct_f = json.features[j].properties.TRACTCE;
+		var jsoncounty = json.features[j].properties.COUNTYFP;
+
+		if (datacbg == jsoncbg){
+			if (datact_f.slice(0,4) == jsonct_f.slice(0,4)) {
+				if (jsoncounty == "061"){
+					// Copy the data value into the JSON
+					json.features[j].properties[datayear] = dataValue; 
+					// Stop looking through the JSON
+					break;
+				}
+			}
+			}
+		}
+	}
+
+		
+// Bind the data to the SVG and create one path per GeoJSON feature
+svg.selectAll("path")
+	.data(json.features)
+	.enter()
+	.append("path")
+	.attr("d", path)
+	.style("stroke", "rgb(225,225,225)")
+	.style("stroke-width", "0.1")
+	.style("fill", function(d) {
+
+	var year = 0
+	// Get data value
+	var value = d.properties[year];
+	var county = d.properties.COUNTYFP
+	// if it's a water block, turn it gray
+	if (d.properties.AWATER != 0) {
+		return 'rgb(225,225,225)';
+	}
+	if (value) {
+	//If value exists and in manhattan
+	return color(value);
+	} else {
+		if (county == '061') {
+			return "#b3cde3";
+		}
+		else {
+		//If value is undefined or outside MN, turn it gray
+		return "rgb(225,225,225)";
+		}
+	}
+});
+
+// Building legend
+var legend = d3.select("body").append("svg")
+      			.attr("class", "legend")
+     			.attr("width", 140)
+    			.attr("height", 200)
+   				.selectAll("g")
+   				.data(color.domain().slice())
+   				.enter()
+   				.append("g")
+     			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  	legend.append("rect")
+   		  .attr("width", 18)
+   		  .attr("height", 18)
+   		  .style("fill", color);
+
+  	legend.append("text")
+  		  .data(legendText)
+      	  .attr("x", 24)
+      	  .attr("y", 9)
+      	  .attr("dy", ".35em")
+      	  .text(function(d) { return d; });
+	});
+
+});
+
+// updating map based on slider position
+      d3.select("#year").on("input", function() {
+      	var year = this.value
+      	d3.select("h2").text(headline + elems[year])
+          svg.selectAll("path")
+          	.transition()
+          	.delay(200)
+			.style("fill", function(d) {
+
+			var value = d.properties[year];
+			var county = d.properties.COUNTYFP
+			if (d.properties.AWATER != 0) {
+				return 'rgb(225,225,225)';
+			}
+			if (value) {
+			return color(value);
+			} else {
+				if (county == '061') {
+					return "#b3cde3";
+				}
+				else {
+				return "rgb(225,225,225)";
+				}
+			}
+});
+      });
+
+});	 
+
+</script>
+</body>
+</html>
