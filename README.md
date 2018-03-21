@@ -4,6 +4,7 @@ Project repo for model to predict future rat inspections in NYC by Tax Block. A 
 
 [Direct Link](https://bl.ocks.org/bgentry91/raw/783ac5c3cc4fae6c952806d2465a8989/)
 
+![Map Image](https://github.com/bgentry91/NYC_Rat_Inspection_Predictor/blob/master/Rat_Inspections_Q42017.png?style=centerme)
 
 The model was built using a random forest classifier in Python using Pandas and Scikit-learn. Because the rat inspection data is relatively sparse, the data was grouped by quarter of the year and tax block. This follows the assumption that if one building on a block had active rat signs, others were likely to as well. The downside to this approach is that the model only predicts results at this level, but for it’s potential uses by the health department I feel that is acceptable. 
 
