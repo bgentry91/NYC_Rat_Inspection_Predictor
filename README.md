@@ -1,6 +1,6 @@
 # NYC Rat Inspection Predictor
 
-Project repo for model to predict future rat inspections in NYC by Tax Block. A powerpoint presentation outlining the project can be found [here](https://github.com/bgentry91/NYC_Rat_Inspection_Predictor/blob/master/NYC_Rat_Inspection_Presentation.pdf). Visualization of historic rat inspections can be found on the project's [bl.ocks.org](https://bl.ocks.org/bgentry91/783ac5c3cc4fae6c952806d2465a8989) page.
+Project repo for model to predict future rat inspections in NYC by Tax Block. A powerpoint presentation outlining the project can be found [here](https://github.com/bgentry91/NYC_Rat_Inspection_Predictor/blob/master/NYC_Rat_Inspection_Presentation.pdf). Visualization of historic rat inspections can be found on the project's [bl.ocks.org](https://bl.ocks.org/bgentry91/783ac5c3cc4fae6c952806d2465a8989) page. A walkthrough for creating the map can be found on my [blog](https://bgentry91.github.io/blog/D3_Map/).
 
 [Direct Link](https://bl.ocks.org/bgentry91/raw/783ac5c3cc4fae6c952806d2465a8989/)
 
